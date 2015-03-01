@@ -48,6 +48,11 @@ Fail() {
     exit 1
 }
 
+GetPid() {
+    pgrep -f '^java.*minecraft.jar'
+}
+
+
 List() {
     ls ~/minecraft/worlds || Fail "Fant ikke worlds-katalog"
 }
@@ -59,7 +64,7 @@ Log() {
 }
 
 Status() {
-    local pid=$(pgrep -f '^java.*minecraft.jar')
+    local pid=$(GetPid)
     if [[ -n "$pid" ]]; then
         echo "Minecraft server er oppe på pid $pid, verden $(basename $(readlink -f /proc/$pid/cwd))."
         exit 0
@@ -73,7 +78,15 @@ Start() {
     local name=$1
     [[ -z "$name" ]] && Fail "Navn på verden må angis"
     cd ~/minecraft/worlds/$name || Fail "Kunne ikke bytte til katalog ~/minecraft/worlds/$name"
-    nohup java -Xmx1G -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalPacing -XX:+AggressiveOpts -jar ./minecraft.jar nogui >> logs/server.log 2>&1 &
+    local pid=$(GetPid)
+    if [[ -z "$pid" ]] ; then
+        nohup java -Xmx1G -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalPacing -XX:+AggressiveOpts -jar ./minecraft.jar nogui >> logs/server.log 2>&1 &
+        echo "Minecraft server starter på pid $(GetPid). Bruk \"status\" og \"log\" for å sjekke status."
+        exit 0
+    else
+        echo "En verden kjører allerede på pid $pid. Avsluter uten å starte."
+        exit 1
+    fi
 }
 
 Stop() {
@@ -111,6 +124,11 @@ Usage() {
     echo "        og loggen til kjørende verden."
     echo "    Støtter bare én instans pr. maskin nå."
 }
+
+
+#===========================================================
+# Hovedprogram
+#===========================================================
 
 [[ ! -d ~/minecraft/skel ]] && Fail "Dette git-repoet må klones under din hjemmekatalog, dvs. navngis '~/minecraft'. Avslutter."
 

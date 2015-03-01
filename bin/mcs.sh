@@ -22,6 +22,7 @@ Create() {
     cp -rp ~/minecraft/skel ~/minecraft/worlds/$name || Fail "Kopiering av skel til verden $name feilet!"
     perl -pi -e "s/level-name=.*/level-name=$name/" ~/minecraft/worlds/$name/server.properties || Fail "Kunne ikke endre servernavn!"
     echo "Verden $name opprettet."
+    echo "Bruk edit-parameteren for å redigere server.properties før du starter."
 }
 
 Delete() {
@@ -82,12 +83,33 @@ Stop() {
 }
 
 Usage() {
-    echo "Usage:"
-    echo "$(basename $0) <create|delete|list|log|status|start|stop>"
-    echo "Git-repoet må klones slik at det ligger i din hjemmekatalog og heter \"minecraft\"."
-    echo "Det kan opprette og slette verdener, starte, stoppe verdener, og vise status og loggen til kjørende verden."
-    echo "Du må manuelt redigere server.properties for å endre "
-    echo "Støtter bare én instans pr. maskin nå."
+    echo "SYNOPSIS"
+    echo "    $(basename $0) <create|delete|edit|list|log|status|start|stop>"
+    echo
+    echo "PARAMETRE"
+    echo "    $(basename $0) create <navn>"
+    echo "        Oppretter en ny verden. NAvn må angis og kan ikke eksistere fra før."
+    echo "    $(basename $0) delete <navn>"
+    echo "        Sletter angitt verden. Dette kan ikke angres!"
+    echo "    $(basename $0) edit <navn>"
+    echo "        Lar deg redigere server.properties til angitt verden."
+    echo "        For at endringene skal tre i kraft må verdenen stopper og startes."
+    echo "    $(basename $0) list"
+    echo "        Lister alle opprettede verdener"
+    echo "    $(basename $0) log <navn>"
+    echo "        Viser loggen til angitt verden"
+    echo "    $(basename $0) status"
+    echo "        Viser statusen til en eventuell starter server"
+    echo "    $(basename $0) start <navn>"
+    echo "        Starter verden med angitt navn"
+    echo "    $(basename $0) stop <navn>"
+    echo "        Stopper verden med angitt navn. Kan startes igjen for å fortsett der man slapp."
+    echo
+    echo "BRUK"
+    echo "    Git-repoet må klones slik at det ligger i din hjemmekatalog og heter \"minecraft\"."
+    echo "    $(basename $0) kan opprette og slette verdener, starte/stoppe verdener, og vise status"
+    echo "        og loggen til kjørende verden."
+    echo "    Støtter bare én instans pr. maskin nå."
 }
 
 [[ ! -d ~/minecraft/skel ]] && Fail "Dette git-repoet må klones under din hjemmekatalog, dvs. navngis '~/minecraft'. Avslutter."

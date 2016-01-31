@@ -22,7 +22,7 @@ Create() {
     cp -rp ~/minecraft/skel ~/minecraft/worlds/$name || Fail "Kopiering av skel til verden $name feilet!"
     perl -pi -e "s/level-name=.*/level-name=$name/" ~/minecraft/worlds/$name/server.properties || Fail "Kunne ikke endre servernavn!"
     echo "Verden $name opprettet."
-    echo "Bruk edit-parameteren for å redigere server.properties før du starter."
+    echo "Bruk edit-kommandoen for å redigere server.properties før du starter."
 }
 
 Delete() {
@@ -51,7 +51,6 @@ Fail() {
 GetPid() {
     pgrep -f '^java.*minecraft.jar'
 }
-
 
 List() {
     ls ~/minecraft/worlds || Fail "Fant ikke worlds-katalog"

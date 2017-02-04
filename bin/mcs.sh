@@ -15,6 +15,23 @@
 #===========================================================
 
 
+Backup() {
+    local name=$1
+    [[ -z "$name" ]] && Fail "Navn på verden må angis"
+    local timestamp=$(date -Iseconds)
+    Status && Fail "Verden må være stoppet."
+
+    # Ta backup
+    cp -rp ~/minecraft/worlds/$name ~/minecraft/worlds/$name-${timestamp}
+    if [[ $? -eq 0 ]] ; then
+        echo "Backup tatt OK til katalog ~/minecraft/worlds/$timestamp"
+        exit 0
+    else
+        echo "Noe gikk galt under backup-kjøring! Sjekk manuelt i katalogen ~/minecraft/worlds"
+        exit 1
+    fi
+}
+
 Create() {
     local name=$1
     [[ -z "$name" ]] && Fail "Navn på verden må angis"
@@ -66,10 +83,10 @@ Status() {
     local pid=$(GetPid)
     if [[ -n "$pid" ]]; then
         echo "Minecraft server er oppe på pid $pid, verden $(basename $(readlink -f /proc/$pid/cwd))."
-        exit 0
+        return 0
     else
         echo "Ingen kjørende Minecraft server funnet."
-        exit 1
+        return 1
     fi
 }
 
@@ -99,6 +116,9 @@ Usage() {
     echo "    $(basename $0) <create|delete|edit|list|log|status|start|stop>"
     echo
     echo "PARAMETRE"
+    echo "    $(basename $0) backup <navn>"
+    echo "        Copies a world directory into a new timestamped directory."
+    echo "        All worlds must be stopped."
     echo "    $(basename $0) create <navn>"
     echo "        Oppretter en ny verden. NAvn må angis og kan ikke eksistere fra før."
     echo "    $(basename $0) delete <navn>"
@@ -136,6 +156,8 @@ CMD=$1
 shift
 
 case "$CMD" in
+    backup)
+        Backup $* ;;
     create)
         Create $* ;;
     delete)
